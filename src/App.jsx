@@ -5,6 +5,7 @@ const App = () => {
     const onClickButton = () => {
         alert();
     };
+    const [num, setNum] = useState(0);
 
 
     return (
@@ -13,6 +14,7 @@ const App = () => {
       <ColorfulMessage color="blue" message="お元気ですか？" />
       <ColorfulMessage color="pink" message="元気です" />
       <button onClick={onClickButton}>ボタン</button>
+      <p>{num}</p>
     </>
   )
 };
