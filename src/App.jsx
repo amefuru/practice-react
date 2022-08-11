@@ -1,45 +1,64 @@
-import React, { useEffect, useState } from "react";
-import ColorfulMessage from "./components/ColorfulMessage";
+import React, { useState } from "react";
+import "./style.css";
+
+import { InputTodo } from "./components/inputTodo";
+import { InCompleteArea } from "./components/InCompleteArea";
+import { CompleteArea } from "./components/CompleteArea";
 
 export const App = () => {
-  const [faceShowFlag, setFaceShowFlag] = useState(true);
-  const [num, setNum] = useState(false);
+  const [todoText, setTodoText] = useState("");
+  const [incompleteTodos, setIncompleteTodos] = useState(["aaaa", "eeee"]);
+  const [completeTodos, setCompleteTodos] = useState(["uuuu"]);
 
-  // 動的に変わる部分でuseStateする
-  const onClickCountUp = () => {
-    setNum(num + 1);
+  const onChangeTodoText = (event) => setTodoText(event.target.value);
+  const onClickAdd = () => {
+    if (todoText === "") return;
+    const newTods = [...incompleteTodos, todoText];
+    setIncompleteTodos(newTods);
+    setTodoText("");
   };
-
-  // 上記で初期値を読み込んで、以下の関数をClickで呼び出して再レンダリングを行う
-  const onClickSwitchShowFlag = () => {
-    setFaceShowFlag(!faceShowFlag);
+  const onClickDelete = (index) => {
+    const newTods = [...incompleteTodos];
+    newTods.splice(index, 1);
+    setIncompleteTodos(newTods);
   };
+  const onClickComplete = (index) => {
+    const newTods = [...incompleteTodos];
+    newTods.splice(index, 1);
 
-  // Too many re-renders. 出たらstate変更周りに注意する
-  // ロジックの衝突が生じた場合は関心の分離をしたい、。この場合はnumだけ
-  // useEffect(() => {}, []); 最初の一回だけ動かしたい時に使うことがある
-  useEffect(() => {
-    if (num > 0 && num % 3 === 0) {
-      faceShowFlag || setFaceShowFlag(true);
-    } else {
-      faceShowFlag && setFaceShowFlag(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [num]); // 怒られるのはfaceFlagがあるが、関心お分離的には正しい
+    const newCompleteTods = [...completeTodos, incompleteTodos[index]];
+    setCompleteTodos(newCompleteTods);
 
-  // react-hooksでstateがあっても関数コンポーネントでかけるようになって習得しやすくなったとか
+    setIncompleteTodos(newTods);
+  };
+  const onClickBack = (index) => {
+    const newTods = [...completeTodos];
+    newTods.splice(index, 1);
+
+    const newInCompleteTods = [...incompleteTodos, completeTodos[index]];
+    setIncompleteTodos(newInCompleteTods);
+
+    setCompleteTodos(newTods);
+  };
 
   return (
     <>
-      <h1 style={{ color: "red" }}>こんにちは</h1>
-      <ColorfulMessage color="blue" message="お元気ですか？" />
-      <ColorfulMessage color="pink" message="元気です" />
-      <button onClick={onClickCountUp}>カウントアップ</button>
-      <br />
-      <button onClick={onClickSwitchShowFlag}>on/off</button>
-      <p>{num}</p>
+      <InputTodo
+        todoText={todoText}
+        onChange={onChangeTodoText}
+        onClick={onClickAdd}
+        disabled={incompleteTodos.length >= 5}
+      />
+      {incompleteTodos.length >= 5 && (
+        <p style={{ color: "red" }}>登録できるののは五コマでです</p>
+      )}
 
-      {faceShowFlag && <p>(*_*)</p>}
+      <InCompleteArea
+        incompleteTodos={incompleteTodos}
+        onClickComplete={onClickComplete}
+        onClickDelete={onClickDelete}
+      />
+      <CompleteArea completeTodos={completeTodos} onClickBack={onClickBack} />
     </>
   );
 };
